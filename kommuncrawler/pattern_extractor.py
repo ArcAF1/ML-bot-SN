@@ -1,6 +1,7 @@
 import re
 
 
+
 def extract_tax_info_from_text(text: str) -> dict:
     """Extracts tax info such as hourly rate and billing model from text."""
     result = {
@@ -20,10 +21,7 @@ def extract_tax_info_from_text(text: str) -> dict:
     ]
 
     for pattern in tax_patterns:
-        matches = re.findall(pattern, text)
-        for match in matches:
-            try:
-                raw_number = next(filter(lambda x: re.match(r"\d", x), match))
+
                 number = int(raw_number.replace(" ", "").replace("\u202f", ""))
                 if 500 <= number <= 5000:
                     hits.append(number)
@@ -40,5 +38,6 @@ def extract_tax_info_from_text(text: str) -> dict:
     elif "förskott" in text or "förhandsdebitering" in text:
         result["debiteringsmodell"] = "förskott"
         result["confidence"] += 0.3
+
 
     return result

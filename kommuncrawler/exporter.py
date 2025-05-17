@@ -3,14 +3,7 @@ import csv
 
 
 def export_results(results: list, output_path: str = 'results', file_name: str = 'output.csv'):
-    """Write the collected results to ``output_path/file_name``.
 
-    Returns early if ``results`` is empty.
-    """
-    if not results:
-        return
-
-    os.makedirs(output_path, exist_ok=True)
     rows = []
     for item in results:
         kommun = item['kommun']

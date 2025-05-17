@@ -1,3 +1,5 @@
+"""Processing utilities for a single municipality."""
+
 from .crawler import crawl_site
 from .pattern_extractor import extract_tax_info_from_text
 from .utils.text import normalize_text
@@ -7,6 +9,7 @@ MAX_CHARS = 15000
 
 
 def process_municipality(name: str, url: str) -> dict:
+    """Crawl ``url`` and extract tax information for ``name``."""
     pages = crawl_site(url)
     best_score = -1
     best_result = None

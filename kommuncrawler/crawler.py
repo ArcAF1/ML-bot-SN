@@ -1,3 +1,5 @@
+"""Simple depth-limited crawler used by the pipeline."""
+
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlopen, Request
 from html.parser import HTMLParser
@@ -8,6 +10,8 @@ MAX_PAGES_PER_LEVEL = 20
 
 
 class LinkParser(HTMLParser):
+    """HTML parser that collects ``href`` links."""
+
     def __init__(self):
         super().__init__()
         self.links = []
@@ -20,6 +24,9 @@ class LinkParser(HTMLParser):
 
 
 def _fetch(url: str) -> str:
+    """Retrieve the page content at ``url``.
+
+    Returns an empty string on any failure."""
     try:
         req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urlopen(req, timeout=10) as resp:
@@ -30,12 +37,17 @@ def _fetch(url: str) -> str:
 
 
 def _is_internal(link: str, base_url: str) -> bool:
+    """Return ``True`` if ``link`` points to the same host as ``base_url``."""
     if link.startswith('http'):
         return urlparse(link).netloc == urlparse(base_url).netloc
     return True
 
 
 def crawl_site(base_url: str, max_depth: int = DEFAULT_MAX_DEPTH) -> list:
+    """Crawl ``base_url`` and return page contents up to ``max_depth``.
+
+    Each item in the returned list is a tuple of text content and the page URL.
+    """
     queue = [(base_url, 0)]
     visited = set()
     results = []

@@ -51,8 +51,7 @@ def _is_internal(link: str, base_url: str) -> bool:
     return True
 
 
-def _crawl_sync(base_url: str, max_depth: int) -> list:
-    """Synchronous crawling implementation."""
+
     queue = [(base_url, 0)]
     visited = set()
     results = []
@@ -77,7 +76,7 @@ def _crawl_sync(base_url: str, max_depth: int) -> list:
                 if _is_internal(full, base_url) and full not in visited:
                     queue.append((full, depth + 1))
                     count += 1
-                    if count >= MAX_PAGES_PER_LEVEL:
+                    if count >= max_pages_per_level:
                         break
     return results
 

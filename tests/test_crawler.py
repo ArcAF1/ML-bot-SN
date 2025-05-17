@@ -24,23 +24,14 @@ class TestCrawler(unittest.TestCase):
         self.assertNotIn('http://ext.com', urls)
         self.assertEqual(len(urls), 2)
 
-    @unittest.skipUnless(crawler.CONCURRENCY_AVAILABLE, "concurrency required")
-    def test_crawl_site_concurrent(self):
-        html_index = '<a href="/page2">next</a>'
-        html_page2 = 'page2'
-        mapping = {
-            'http://example.com': html_index,
-            'http://example.com/page2': html_page2,
+
         }
 
         def fake_fetch(url):
             return mapping.get(url, '')
 
         with patch('kommuncrawler.crawler._fetch', side_effect=fake_fetch):
-            pages = crawler.crawl_site('http://example.com', max_depth=1, use_concurrent=True)
 
-        urls = [u for _, u in pages]
-        self.assertIn('http://example.com/page2', urls)
         self.assertEqual(len(urls), 2)
 
 

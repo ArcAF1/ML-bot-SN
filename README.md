@@ -21,6 +21,16 @@ python -m kommuncrawler.run_pipeline -m kommuner.csv -o results
 - `-m`, `--municipalities` – path to the CSV with municipality names and URLs
 - `-o`, `--output` – directory where the result CSV will be stored
 
+### GUI
+
+You can launch a minimal Tkinter interface with:
+
+```bash
+python -m kommuncrawler.gui
+```
+
+Use the dialogs to pick the municipalities CSV and output directory.
+
 ## Running tests
 
 Execute the unit test suite with:

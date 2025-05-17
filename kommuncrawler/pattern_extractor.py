@@ -12,11 +12,13 @@ def extract_tax_info_from_text(text: str) -> dict:
     text = text.lower()
     hits = []
 
+    number_pattern = r"\d+(?:[\s\u202f,.]\d{3})*(?:[.,]\d+)?"
+
     tax_patterns = [
-        r"timtaxa\s*[:=]?\s*(\d{1,3}(?:[\s\u202f]?\d{3})*)\s*(?:kr|kronor)",
-        r"timavgift(en)?\s*(är|på)?\s*(\d{1,3}(?:[\s\u202f]?\d{3})*)\s*(kr|kronor)",
-        r"(\d{1,3}(?:[\s\u202f]?\d{3})*)\s*(kr|kronor)\s*(per|\/)?\s*tim(me)?",
-        r"(\d{3,5})\s*(kr|kronor)\s*\/\s*tim(me)?"
+        rf"timtaxa\s*[:=]?\s*({number_pattern})\s*(?:kr|kronor)",
+        rf"timavgift(en)?\s*(är|på)?\s*({number_pattern})\s*(kr|kronor)",
+        rf"({number_pattern})\s*(kr|kronor)\s*(per|\/)?\s*tim(me)?",
+        rf"({number_pattern})\s*(kr|kronor)\s*\/\s*tim(me)?"
     ]
 
     for pattern in tax_patterns:
@@ -24,7 +26,15 @@ def extract_tax_info_from_text(text: str) -> dict:
         for match in matches:
             try:
                 raw_number = next(filter(lambda x: re.match(r"\d", x), match))
-                number = int(raw_number.replace(" ", "").replace("\u202f", ""))
+                cleaned = (
+                    raw_number.replace(" ", "")
+                    .replace("\u202f", "")
+                    .replace(",", ".")
+                )
+                parts = cleaned.split(".")
+                if len(parts) > 2:
+                    cleaned = "".join(parts[:-1]) + "." + parts[-1]
+                number = float(cleaned)
                 if 500 <= number <= 5000:
                     hits.append(number)
             except Exception:

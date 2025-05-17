@@ -20,6 +20,8 @@ python -m kommuncrawler.run_pipeline -m kommuner.csv -o results
 
 - `-m`, `--municipalities` – path to the CSV with municipality names and URLs
 - `-o`, `--output` – directory where the result CSV will be stored
+- `--depth` – maximum crawl depth (default: 2)
+- `--pages-per-level` – pages to crawl per level (default: 20)
 
 ### GUI
 

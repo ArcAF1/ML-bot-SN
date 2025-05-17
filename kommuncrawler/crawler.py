@@ -43,10 +43,26 @@ def _is_internal(link: str, base_url: str) -> bool:
     return True
 
 
-def crawl_site(base_url: str, max_depth: int = DEFAULT_MAX_DEPTH) -> list:
-    """Crawl ``base_url`` and return page contents up to ``max_depth``.
+def crawl_site(
+    base_url: str,
+    max_depth: int = DEFAULT_MAX_DEPTH,
+    max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+) -> list:
+    """Crawl ``base_url`` and return page contents.
 
-    Each item in the returned list is a tuple of text content and the page URL.
+    Parameters
+    ----------
+    base_url:
+        Starting URL for the crawl.
+    max_depth:
+        How many link levels deep to follow.
+    max_pages_per_level:
+        Limit for how many pages to queue from a single page.
+
+    Returns
+    -------
+    list of tuple[str, str]
+        Tuples of page text and the page URL.
     """
     queue = [(base_url, 0)]
     visited = set()
@@ -72,6 +88,6 @@ def crawl_site(base_url: str, max_depth: int = DEFAULT_MAX_DEPTH) -> list:
                 if _is_internal(full, base_url) and full not in visited:
                     queue.append((full, depth + 1))
                     count += 1
-                    if count >= MAX_PAGES_PER_LEVEL:
+                    if count >= max_pages_per_level:
                         break
     return results

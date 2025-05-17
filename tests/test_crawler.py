@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+
 from kommuncrawler import crawler
 
 
@@ -16,22 +17,17 @@ class TestCrawler(unittest.TestCase):
             return mapping.get(url, '')
 
         with patch('kommuncrawler.crawler._fetch', side_effect=fake_fetch):
-            pages = crawler.crawl_site('http://example.com', max_depth=1, use_concurrent=False)
+            pages = crawler.crawl_site(
+                'http://example.com',
+                max_depth=1,
+                max_pages_per_level=5,
+                use_concurrent=False,
+            )
 
         urls = [u for _, u in pages]
         self.assertIn('http://example.com', urls)
         self.assertIn('http://example.com/page2', urls)
         self.assertNotIn('http://ext.com', urls)
-        self.assertEqual(len(urls), 2)
-
-
-        }
-
-        def fake_fetch(url):
-            return mapping.get(url, '')
-
-        with patch('kommuncrawler.crawler._fetch', side_effect=fake_fetch):
-
         self.assertEqual(len(urls), 2)
 
 

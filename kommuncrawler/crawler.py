@@ -3,8 +3,7 @@ from urllib.request import urlopen, Request
 from html.parser import HTMLParser
 import re
 
-DEFAULT_MAX_DEPTH = 2
-MAX_PAGES_PER_LEVEL = 20
+
 
 
 class LinkParser(HTMLParser):
@@ -54,12 +53,5 @@ def crawl_site(base_url: str, max_depth: int = DEFAULT_MAX_DEPTH) -> list:
         if depth < max_depth:
             parser = LinkParser()
             parser.feed(text)
-            count = 0
-            for href in parser.links:
-                full = urljoin(url, href)
-                if _is_internal(full, base_url) and full not in visited:
-                    queue.append((full, depth + 1))
-                    count += 1
-                    if count >= MAX_PAGES_PER_LEVEL:
-                        break
+
     return results

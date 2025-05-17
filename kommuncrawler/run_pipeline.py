@@ -4,24 +4,11 @@ from .exporter import export_results
 
 
 def load_municipalities(path='kommuner.csv'):
-    try:
-        with open(path, newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            return [
-                (row['kommun'], row['url'])
-                for row in reader
-                if row.get('kommun') and row.get('url')
-            ]
-    except FileNotFoundError:
-        print(f"Kommunfil saknas: {path}")
-        return []
+
 
 
 def run():
     municipalities = load_municipalities()
-    if not municipalities:
-        print("No municipalities to process.")
-        return
 
     results = []
     for name, url in municipalities:

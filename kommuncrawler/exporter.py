@@ -4,6 +4,7 @@ import csv
 
 def export_results(results: list, output_path: str = 'results', file_name: str = 'output.csv'):
     os.makedirs(output_path, exist_ok=True)
+
     rows = []
     for item in results:
         kommun = item['kommun']

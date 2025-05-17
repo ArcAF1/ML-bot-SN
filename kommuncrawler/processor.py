@@ -1,6 +1,6 @@
 from .crawler import crawl_site
 from .pattern_extractor import extract_tax_info_from_text
-from .learning import update_model
+
 from .utils.text import normalize_text
 
 
@@ -12,7 +12,7 @@ def process_municipality(name: str, url: str) -> dict:
     best_score = -1
     best_result = None
     best_url = url
-    best_text = None
+
 
     for text, page_url in pages:
         clean_text = normalize_text(text[:MAX_CHARS])
@@ -22,7 +22,7 @@ def process_municipality(name: str, url: str) -> dict:
             best_score = score
             best_result = result
             best_url = page_url
-            best_text = clean_text
+
 
     if not best_result:
         best_result = {
@@ -32,8 +32,5 @@ def process_municipality(name: str, url: str) -> dict:
         }
 
     best_result['källa'] = best_url
-
-    if best_text and best_result.get('timtaxa'):
-        update_model(best_text)
 
     return {'kommun': name, 'data': best_result}

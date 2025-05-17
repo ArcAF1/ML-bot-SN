@@ -3,12 +3,7 @@ from urllib.request import urlopen, Request
 from html.parser import HTMLParser
 import re
 
-DEFAULT_MAX_DEPTH = 3
-MAX_PAGES_PER_LEVEL = 100
 
-KEYWORDS = [
-    'taxa', 'avgift', 'kontroll', 'tillsyn', 'tim', 'pdf', 'bygg', 'livsmed',
-]
 
 
 class LinkParser(HTMLParser):
@@ -58,21 +53,5 @@ def crawl_site(base_url: str, max_depth: int = DEFAULT_MAX_DEPTH) -> list:
         if depth < max_depth:
             parser = LinkParser()
             parser.feed(text)
-            scored = []
-            for href in parser.links:
-                full = urljoin(url, href)
-                if _is_internal(full, base_url) and full not in visited:
-                    score = 0
-                    lower = full.lower()
-                    for kw in KEYWORDS:
-                        if kw in lower:
-                            score += 1
-                    scored.append((score, full))
-            scored.sort(key=lambda x: -x[0])
-            count = 0
-            for _, link in scored:
-                queue.append((link, depth + 1))
-                count += 1
-                if count >= MAX_PAGES_PER_LEVEL:
-                    break
+
     return results

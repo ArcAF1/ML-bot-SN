@@ -1,5 +1,5 @@
 import re
-from .learning import score_text
+
 
 
 def extract_tax_info_from_text(text: str) -> dict:
@@ -21,10 +21,7 @@ def extract_tax_info_from_text(text: str) -> dict:
     ]
 
     for pattern in tax_patterns:
-        matches = re.findall(pattern, text)
-        for match in matches:
-            try:
-                raw_number = next(filter(lambda x: re.match(r"\d", x), match))
+
                 number = int(raw_number.replace(" ", "").replace("\u202f", ""))
                 if 500 <= number <= 5000:
                     hits.append(number)
@@ -42,7 +39,5 @@ def extract_tax_info_from_text(text: str) -> dict:
         result["debiteringsmodell"] = "förskott"
         result["confidence"] += 0.3
 
-    # self-learning score based on previous runs
-    result["confidence"] += 0.1 * score_text(text)
 
     return result

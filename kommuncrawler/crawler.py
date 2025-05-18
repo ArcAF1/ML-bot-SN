@@ -3,8 +3,13 @@
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlopen, Request
 
+from html.parser import HTMLParser
+from typing import Optional, Set
+
+
 from typing import Optional
 
+ main
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
     CONCURRENCY_AVAILABLE = True
@@ -61,7 +66,11 @@ def _crawl_sync(
     """Simple synchronous crawler using a queue."""
 
     queue = [(base_url, 0)]
+
+    visited: Set[str] = set()
+
     visited: set[str] = set()
+ main
     results = []
 
     while queue:
@@ -137,6 +146,10 @@ def crawl_site(
     use_concurrent: Optional[bool] = None,
 
 
+    use_concurrent: Optional[bool] = None,
+
+
+main
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 ) -> list:

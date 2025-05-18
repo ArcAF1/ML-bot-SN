@@ -6,6 +6,7 @@ from .processor import (
     process_municipality,
     DEFAULT_MAX_DEPTH,
     MAX_PAGES_PER_LEVEL,
+    DEFAULT_MAX_CONCURRENCY,
 )
 from .exporter import export_results
 
@@ -41,6 +42,7 @@ def run(
     output_dir: str = 'results',
     depth: int = DEFAULT_MAX_DEPTH,
     pages_per_level: int = MAX_PAGES_PER_LEVEL,
+    max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
 ) -> None:
     """Run the complete crawling and extraction pipeline.
 
@@ -54,6 +56,8 @@ def run(
         How many link levels deep to follow while crawling.
     pages_per_level:
         Number of pages to queue from each page.
+    max_concurrency:
+        Maximum number of concurrent workers when crawling.
     """
 
     municipalities = load_municipalities(municipalities_csv)
@@ -69,6 +73,7 @@ def run(
             url,
             max_depth=depth,
             max_pages_per_level=pages_per_level,
+            max_concurrency=max_concurrency,
         )
         results.append(res)
 
@@ -81,6 +86,13 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', default='results', help='Directory for output CSV')
     parser.add_argument('--depth', type=int, default=DEFAULT_MAX_DEPTH, help='Maximum crawl depth')
     parser.add_argument('--pages-per-level', type=int, default=MAX_PAGES_PER_LEVEL, help='Pages to crawl per level')
+    parser.add_argument('--concurrency', type=int, default=DEFAULT_MAX_CONCURRENCY, help='Maximum concurrent workers')
     args = parser.parse_args()
 
-    run(args.municipalities, args.output, args.depth, args.pages_per_level)
+    run(
+        args.municipalities,
+        args.output,
+        args.depth,
+        args.pages_per_level,
+        args.concurrency,
+    )

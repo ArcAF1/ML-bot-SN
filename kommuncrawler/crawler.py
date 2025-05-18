@@ -2,12 +2,20 @@
 
 import logging
 from html.parser import HTMLParser
+from typing import List, Optional, Set, Tuple
 from urllib.parse import urljoin, urlparse
-
 from urllib.request import Request, urlopen
+
 from html.parser import HTMLParser
 from typing import List, Optional, Set, Tuple
+
 import logging
+from io import BytesIO
+try:
+    from pdfminer.high_level import extract_text as pdf_extract_text
+except Exception:  # pragma: no cover
+    pdf_extract_text = None  # type: ignore
+
 
 
 try:
@@ -23,6 +31,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAX_DEPTH = 2
 MAX_PAGES_PER_LEVEL = 20
 DEFAULT_MAX_CONCURRENCY = 5
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,13 +53,26 @@ class LinkParser(HTMLParser):
 def _fetch(url: str) -> str:
     """Retrieve the page content at ``url``.
 
-    Returns an empty string on any failure."""
+    Returns an empty string on any failure. If the content is a PDF, the
+    extracted text is returned instead of the raw bytes."""
 
     try:
         req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urlopen(req, timeout=10) as resp:
+            content_type = resp.headers.get("Content-Type", "").lower()
+            data = resp.read()
+
+            is_pdf = url.lower().endswith(".pdf") or "application/pdf" in content_type
+            if is_pdf:
+                if pdf_extract_text is None:
+                    return ""
+                try:
+                    return pdf_extract_text(BytesIO(data))
+                except Exception:
+                    return ""
+
             charset = resp.headers.get_content_charset() or "utf-8"
-            return resp.read().decode(charset, errors="ignore")
+            return data.decode(charset, errors="ignore")
     except Exception:  # pragma: no cover - network errors
         return ""
 
@@ -63,18 +85,20 @@ def _is_internal(link: str, base_url: str) -> bool:
     return True
 
 
-
 def _crawl_sync(
     base_url: str,
     max_depth: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
 ) -> List[Tuple[str, str]]:
+
     """Simple synchronous crawler using a queue."""
 
     queue = [(base_url, 0)]
     visited: Set[str] = set()
+
     results: List[Tuple[str, str]] = []
+
     while queue:
         url, depth = queue.pop(0)
         if url in visited or depth > max_depth:
@@ -109,6 +133,7 @@ def _crawl_concurrent(
 ) -> List[Tuple[str, str]]:
 
     """Concurrent crawler using threads."""
+
     visited: Set[str] = set()
     results: List[Tuple[str, str]] = []
     current_level = [base_url]
@@ -174,9 +199,10 @@ def crawl_site(
                 max_pages_per_level,
             )
 
-        except Exception as exc:  # pragma: no cover - concurrency failures
-            logger.warning("Concurrent crawl failed for %s: %s", base_url, exc)
 
+        except Exception as exc:  # pragma: no cover - concurrency failures
+
+            logger.warning("Concurrent crawl failed for %s: %s", base_url, exc)
 
     # Fallback to synchronous crawling
     return _crawl_sync(base_url, max_depth, max_pages_per_level)

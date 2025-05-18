@@ -2,9 +2,14 @@
 
 import os
 import csv
+from typing import Any
 
 
-def export_results(results: list, output_path: str = 'results', file_name: str = 'output.csv'):
+def export_results(
+    results: list[dict[str, Any]],
+    output_path: str = 'results',
+    file_name: str = 'output.csv',
+) -> None:
     """Write extraction results to ``output_path/file_name``."""
     os.makedirs(output_path, exist_ok=True)
     rows = []

@@ -1,5 +1,7 @@
 """Processing utilities for a single municipality."""
 
+from typing import Any
+
 from .crawler import (
     crawl_site,
     DEFAULT_MAX_DEPTH,
@@ -19,7 +21,7 @@ def process_municipality(
     max_depth: int = DEFAULT_MAX_DEPTH,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
-) -> dict:
+) -> dict[str, Any]:
     """Crawl ``url`` and extract tax information for ``name``.
 
     Parameters

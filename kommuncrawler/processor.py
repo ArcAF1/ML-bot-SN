@@ -33,7 +33,6 @@ def process_municipality(
     max_pages_per_level:
         Limit for how many pages to queue from a single page.
     max_concurrency:
-
         Number of worker threads for concurrent crawling.
     """
     pages = crawl_site(

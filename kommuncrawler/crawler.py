@@ -4,6 +4,7 @@ from urllib.parse import urljoin, urlparse
 from urllib.request import urlopen, Request
 from html.parser import HTMLParser
 from typing import Optional, Set
+
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
     CONCURRENCY_AVAILABLE = True

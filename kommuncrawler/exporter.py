@@ -2,8 +2,11 @@
 
 import os
 import csv
+import logging
 from typing import Any
 
+
+logger = logging.getLogger(__name__)
 
 def export_results(
     results: list[dict[str, Any]],
@@ -25,7 +28,7 @@ def export_results(
         })
 
     if not rows:
-        print("No results to export")
+        logger.info("No results to export")
         return
 
     output_file = os.path.join(output_path, file_name)
@@ -35,4 +38,4 @@ def export_results(
         for row in rows:
             writer.writerow(row)
 
-    print(f"Saved {len(rows)} rows to {output_file}")
+    logger.info("Saved %d rows to %s", len(rows), output_file)

@@ -2,13 +2,17 @@
 
 import argparse
 import csv
+import logging
 from .processor import (
     process_municipality,
     DEFAULT_MAX_DEPTH,
     MAX_PAGES_PER_LEVEL,
     DEFAULT_MAX_CONCURRENCY,
 )
+
 from .exporter import export_results
+
+logger = logging.getLogger(__name__)
 
 
 def load_municipalities(path: str = 'kommuner.csv') -> list[tuple[str, str]]:
@@ -33,7 +37,7 @@ def load_municipalities(path: str = 'kommuner.csv') -> list[tuple[str, str]]:
                 if row.get('kommun') and row.get('url')
             ]
     except FileNotFoundError:
-        print(f'File not found: {path}')
+        logger.warning('File not found: %s', path)
         return []
 
 
@@ -64,12 +68,12 @@ def run(
 
     municipalities = load_municipalities(municipalities_csv)
     if not municipalities:
-        print('No municipalities to process.')
+        logger.info('No municipalities to process.')
         return
 
     results = []
     for name, url in municipalities:
-        print(f'Processing {name}...')
+        logger.info('Processing %s...', name)
         res = process_municipality(
             name,
             url,

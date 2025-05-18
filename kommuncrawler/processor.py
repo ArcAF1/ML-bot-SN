@@ -10,6 +10,7 @@ from .crawler import (
 )
 from .pattern_extractor import extract_tax_info_from_text
 from .utils.text import normalize_text
+from typing import Any
 
 
 MAX_CHARS = 15000

@@ -46,6 +46,27 @@ class TestRunPipeline(unittest.TestCase):
                 self.assertEqual(row["confidence"], "1.0")
                 self.assertEqual(row["källa"], f"{url}/page")
 
+    def test_run_passes_concurrency(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "municipalities.csv")
+            with open(csv_path, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=["kommun", "url"])
+                writer.writeheader()
+                writer.writerow({"kommun": "A", "url": "http://a"})
+                writer.writerow({"kommun": "B", "url": "http://b"})
+
+            called = []
+
+            def fake_process(name, url, max_depth=2, max_pages_per_level=20, max_concurrency=5):
+                called.append(max_concurrency)
+                return {"kommun": name, "data": {}}
+
+            with patch("kommuncrawler.run_pipeline.process_municipality", side_effect=fake_process), \
+                 patch("kommuncrawler.exporter.export_results"):
+                run_pipeline.run(csv_path, output_dir=tmpdir, max_concurrency=7)
+
+            self.assertEqual(called, [7, 7])
+
 
 if __name__ == "__main__":
     unittest.main()

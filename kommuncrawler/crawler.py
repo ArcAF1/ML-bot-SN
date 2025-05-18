@@ -4,7 +4,9 @@ import logging
 from html.parser import HTMLParser
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
+
 from typing import Optional, Set, List, Tuple
+
 
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -61,12 +63,16 @@ def _crawl_sync(
     base_url: str,
     max_depth: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+
 ) -> List[Tuple[str, str]]:
+
     """Simple synchronous crawler using a queue."""
 
     queue = [(base_url, 0)]
     visited: Set[str] = set()
+
     results: List[Tuple[str, str]] = []
+
     while queue:
         url, depth = queue.pop(0)
         if url in visited or depth > max_depth:
@@ -98,7 +104,7 @@ def _crawl_concurrent(
     max_workers: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
-) -> list:
+) -> List[Tuple[str, str]]:
 
     """Concurrent crawler using threads."""
     visited: Set[str] = set()
@@ -150,7 +156,7 @@ def crawl_site(
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
-) -> list:
+) -> List[Tuple[str, str]]:
 
     """Crawl ``base_url`` and return page contents up to ``max_depth``."""
 

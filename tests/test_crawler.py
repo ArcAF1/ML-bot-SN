@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+
 from kommuncrawler import crawler
 
 
@@ -16,7 +17,12 @@ class TestCrawler(unittest.TestCase):
             return mapping.get(url, '')
 
         with patch('kommuncrawler.crawler._fetch', side_effect=fake_fetch):
-            pages = crawler.crawl_site('http://example.com', max_depth=1, use_concurrent=False)
+            pages = crawler.crawl_site(
+                'http://example.com',
+                max_depth=1,
+                max_pages_per_level=5,
+                use_concurrent=False,
+            )
 
         urls = [u for _, u in pages]
         self.assertIn('http://example.com', urls)
@@ -24,15 +30,11 @@ class TestCrawler(unittest.TestCase):
         self.assertNotIn('http://ext.com', urls)
         self.assertEqual(len(urls), 2)
 
-
-        }
-
-        def fake_fetch(url):
-            return mapping.get(url, '')
-
-        with patch('kommuncrawler.crawler._fetch', side_effect=fake_fetch):
-
-        self.assertEqual(len(urls), 2)
+    def test_concurrent_failure_logs_warning(self):
+        with patch('kommuncrawler.crawler._crawl_concurrent', side_effect=Exception('boom')):
+            with self.assertLogs(crawler.logger, level='WARNING') as cm:
+                crawler.crawl_site('http://example.com', use_concurrent=True)
+            self.assertTrue(any('Concurrent crawl failed' in msg for msg in cm.output))
 
 
 if __name__ == '__main__':

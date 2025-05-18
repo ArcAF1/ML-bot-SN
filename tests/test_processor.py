@@ -7,7 +7,7 @@ class TestProcessor(unittest.TestCase):
     def test_process_municipality_selects_best(self):
         fake_pages = [('text1', 'url1'), ('text2', 'url2')]
 
-        def fake_crawl(url, max_depth=2, max_pages_per_level=20):
+        def fake_crawl(url, max_depth=2, max_pages_per_level=20, max_concurrency=5):
             return fake_pages
 
         def fake_extract(text):
@@ -28,7 +28,7 @@ class TestProcessor(unittest.TestCase):
     def test_process_municipality_passes_depth_options(self):
         called = {}
 
-        def fake_crawl(url, max_depth=2, max_pages_per_level=20):
+        def fake_crawl(url, max_depth=2, max_pages_per_level=20, max_concurrency=5):
             called['depth'] = max_depth
             called['pages'] = max_pages_per_level
             return [('text', url)]

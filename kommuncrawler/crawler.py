@@ -3,7 +3,8 @@
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlopen, Request
 from html.parser import HTMLParser
-import re
+from typing import Optional, Set
+import logging
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
     CONCURRENCY_AVAILABLE = True
@@ -16,6 +17,8 @@ DEFAULT_MAX_DEPTH = 2
 MAX_PAGES_PER_LEVEL = 20
 DEFAULT_MAX_CONCURRENCY = 5
 
+
+logger = logging.getLogger(__name__)
 
 class LinkParser(HTMLParser):
     """HTML parser that collects ``href`` links."""
@@ -52,8 +55,15 @@ def _is_internal(link: str, base_url: str) -> bool:
 
 
 
+def _crawl_sync(
+    base_url: str,
+    max_depth: int,
+    max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+) -> list:
+    """Simple synchronous crawler using a queue."""
+
     queue = [(base_url, 0)]
-    visited = set()
+    visited: Set[str] = set()
     results = []
 
     while queue:
@@ -81,7 +91,12 @@ def _is_internal(link: str, base_url: str) -> bool:
     return results
 
 
-def _crawl_concurrent(base_url: str, max_depth: int, max_workers: int) -> list:
+def _crawl_concurrent(
+    base_url: str,
+    max_depth: int,
+    max_workers: int,
+    max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+) -> list:
     """Concurrent crawler using threads."""
     visited = set()
     results = []
@@ -109,7 +124,7 @@ def _crawl_concurrent(base_url: str, max_depth: int, max_workers: int) -> list:
                         if _is_internal(full, base_url) and full not in visited and full not in next_level:
                             next_level.append(full)
                             count += 1
-                            if count >= MAX_PAGES_PER_LEVEL:
+                            if count >= max_pages_per_level:
                                 break
 
             current_level = next_level
@@ -117,9 +132,13 @@ def _crawl_concurrent(base_url: str, max_depth: int, max_workers: int) -> list:
     return results
 
 
-def crawl_site(base_url: str, max_depth: int = DEFAULT_MAX_DEPTH,
-               use_concurrent: bool | None = None,
-               max_concurrency: int = DEFAULT_MAX_CONCURRENCY) -> list:
+def crawl_site(
+    base_url: str,
+    max_depth: int = DEFAULT_MAX_DEPTH,
+    use_concurrent: Optional[bool] = None,
+    max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
+    max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+) -> list:
     """Crawl ``base_url`` and return page contents up to ``max_depth``."""
 
     if use_concurrent is None:
@@ -127,9 +146,14 @@ def crawl_site(base_url: str, max_depth: int = DEFAULT_MAX_DEPTH,
 
     if use_concurrent and CONCURRENCY_AVAILABLE:
         try:
-            return _crawl_concurrent(base_url, max_depth, max_concurrency)
-        except Exception:
-            pass  # fall back to synchronous on any failure
+            return _crawl_concurrent(
+                base_url,
+                max_depth,
+                max_concurrency,
+                max_pages_per_level,
+            )
+        except Exception as exc:
+            logger.warning("Concurrent crawl failed for %s: %s", base_url, exc)
 
     # Fallback to synchronous crawling
-    return _crawl_sync(base_url, max_depth)
+    return _crawl_sync(base_url, max_depth, max_pages_per_level)

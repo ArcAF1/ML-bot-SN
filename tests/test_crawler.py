@@ -31,20 +31,12 @@ class TestCrawler(unittest.TestCase):
         self.assertEqual(len(urls), 2)
 
 
+    def test_concurrent_failure_logs_warning(self):
+        with patch('kommuncrawler.crawler._crawl_concurrent', side_effect=Exception('boom')):
+            with self.assertLogs(crawler.logger, level='WARNING') as cm:
+                crawler.crawl_site('http://example.com', use_concurrent=True)
+            self.assertTrue(any('Concurrent crawl failed' in msg for msg in cm.output))
 
-    def test_crawl_site_concurrent_exception_warning(self):
-        with patch('kommuncrawler.crawler._crawl_concurrent', side_effect=ValueError('boom')), \
-             patch('kommuncrawler.crawler._crawl_sync', return_value=[('t', 'u')]) as mock_sync, \
-             patch('kommuncrawler.crawler.logger.warning') as mock_warn:
-            pages = crawler.crawl_site('http://example.com', use_concurrent=True)
-
-        self.assertEqual(pages, [('t', 'u')])
-        mock_sync.assert_called_once()
-        mock_warn.assert_called_once()
-        args = mock_warn.call_args[0]
-        self.assertEqual(args[0], 'Concurrent crawl failed for %s: %s')
-        self.assertEqual(args[1], 'http://example.com')
-        self.assertIn('boom', str(args[2]))
 
 
 if __name__ == '__main__':

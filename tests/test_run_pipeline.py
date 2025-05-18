@@ -40,13 +40,31 @@ class TestRunPipeline(unittest.TestCase):
             with open(output_file, newline="", encoding="utf-8") as f:
                 rows = list(csv.DictReader(f))
 
-            self.assertEqual(len(rows), 2)
-            for row, (kommun, url) in zip(rows, [("A", "http://a"), ("B", "http://b")]):
-                self.assertEqual(row["kommun"], kommun)
-                self.assertEqual(row["timtaxa"], "42")
-                self.assertEqual(row["debiteringsmodell"], "efteråt")
-                self.assertEqual(row["confidence"], "1.0")
-                self.assertEqual(row["källa"], f"{url}/page")
+        self.assertEqual(len(rows), 2)
+        for row, (kommun, url) in zip(rows, [("A", "http://a"), ("B", "http://b")]):
+            self.assertEqual(row["kommun"], kommun)
+            self.assertEqual(row["timtaxa"], "42")
+            self.assertEqual(row["debiteringsmodell"], "efteråt")
+            self.assertEqual(row["confidence"], "1.0")
+            self.assertEqual(row["källa"], f"{url}/page")
+
+    def test_run_passes_concurrency(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "m.csv")
+            with open(csv_path, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=["kommun", "url"])
+                writer.writeheader()
+                writer.writerow({"kommun": "A", "url": "http://a"})
+
+            with patch("kommuncrawler.run_pipeline.process_municipality") as proc:
+                run_pipeline.run(csv_path, output_dir=tmpdir, depth=1, pages_per_level=5, max_concurrency=7)
+                proc.assert_called_with(
+                    "A",
+                    "http://a",
+                    max_depth=1,
+                    max_pages_per_level=5,
+                    max_concurrency=7,
+                )
 
     def test_run_passes_concurrency(self):
         with tempfile.TemporaryDirectory() as tmpdir:

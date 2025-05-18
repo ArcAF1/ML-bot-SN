@@ -183,7 +183,7 @@ def crawl_site(
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
-) -> List[Tuple[str, str]]:
+) -> list[tuple[str, str]]:
 
     """Crawl ``base_url`` and return page contents up to ``max_depth``."""
 

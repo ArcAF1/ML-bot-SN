@@ -11,7 +11,7 @@ from .processor import (
 from .exporter import export_results
 
 
-def load_municipalities(path: str = 'kommuner.csv') -> list:
+def load_municipalities(path: str = 'kommuner.csv') -> list[tuple[str, str]]:
     """Load municipalities and their URLs from a CSV file.
 
     Parameters

@@ -2,10 +2,10 @@
 
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlopen, Request
-
 from html.parser import HTMLParser
 from typing import Optional, Set
 import logging
+
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 from typing import Optional
 
+
+main
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
     CONCURRENCY_AVAILABLE = True
@@ -71,8 +73,12 @@ def _crawl_sync(
 
     queue = [(base_url, 0)]
 
+
     visited: Set[str] = set()
     visited: set[str] = set()
+
+    visited: Set[str] = set()
+ main
     results = []
 
     while queue:

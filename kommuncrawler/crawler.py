@@ -77,14 +77,6 @@ def _crawl_sync(
     queue = [(base_url, 0)]
     visited: Set[str] = set()
     results = []
-
-
-) -> List[Tuple[str, str]]:
-    """Simple synchronous crawler using a queue."""
-
-    queue = [(base_url, 0)]
-    visited: Set[str] = set()
-    results: List[Tuple[str, str]] = []
     while queue:
         url, depth = queue.pop(0)
         if url in visited or depth > max_depth:

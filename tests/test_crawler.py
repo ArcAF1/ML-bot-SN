@@ -35,7 +35,53 @@ class TestCrawler(unittest.TestCase):
         with patch('kommuncrawler.crawler._crawl_concurrent', side_effect=Exception('boom')):
             with self.assertLogs(crawler.logger, level='WARNING') as cm:
                 crawler.crawl_site('http://example.com', use_concurrent=True)
-            self.assertTrue(any('Concurrent crawl failed' in msg for msg in cm.output))
+        self.assertTrue(any('Concurrent crawl failed' in msg for msg in cm.output))
+
+    def test_fetch_pdf_returns_extracted_text(self):
+        class FakeResp:
+            def __init__(self):
+                self.headers = {'Content-Type': 'application/pdf'}
+
+            def read(self):
+                return b'%PDF-1.4 dummy'
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                pass
+
+            def get_content_charset(self):
+                return None
+
+        with patch('kommuncrawler.crawler.urlopen', return_value=FakeResp()), \
+             patch('kommuncrawler.crawler.pdf_extract_text', return_value='hello'):
+            text = crawler._fetch('http://example.com/test.pdf')
+
+        self.assertEqual(text, 'hello')
+
+    def test_fetch_pdf_detects_extension(self):
+        class FakeResp:
+            def __init__(self):
+                self.headers = {}
+
+            def read(self):
+                return b'%PDF-1.4 dummy'
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                pass
+
+            def get_content_charset(self):
+                return None
+
+        with patch('kommuncrawler.crawler.urlopen', return_value=FakeResp()), \
+             patch('kommuncrawler.crawler.pdf_extract_text', return_value='bye'):
+            text = crawler._fetch('http://example.com/doc.pdf')
+
+        self.assertEqual(text, 'bye')
 
 
 

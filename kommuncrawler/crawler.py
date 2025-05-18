@@ -1,10 +1,14 @@
 """Simple depth-limited crawler used by the pipeline."""
 
+import logging
+from html.parser import HTMLParser
 from urllib.parse import urljoin, urlparse
+
 from urllib.request import Request, urlopen
 from html.parser import HTMLParser
 from typing import List, Optional, Set, Tuple
 import logging
+
 
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -19,6 +23,8 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAX_DEPTH = 2
 MAX_PAGES_PER_LEVEL = 20
 DEFAULT_MAX_CONCURRENCY = 5
+
+logger = logging.getLogger(__name__)
 
 
 class LinkParser(HTMLParser):
@@ -62,13 +68,13 @@ def _crawl_sync(
     base_url: str,
     max_depth: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+
 ) -> List[Tuple[str, str]]:
     """Simple synchronous crawler using a queue."""
 
     queue = [(base_url, 0)]
     visited: Set[str] = set()
     results: List[Tuple[str, str]] = []
-
     while queue:
         url, depth = queue.pop(0)
         if url in visited or depth > max_depth:
@@ -99,7 +105,9 @@ def _crawl_concurrent(
     max_depth: int,
     max_workers: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+
 ) -> List[Tuple[str, str]]:
+
     """Concurrent crawler using threads."""
     visited: Set[str] = set()
     results: List[Tuple[str, str]] = []
@@ -128,7 +136,11 @@ def _crawl_concurrent(
                     count = 0
                     for href in parser.links:
                         full = urljoin(url, href)
-                        if _is_internal(full, base_url) and full not in visited and full not in next_level:
+                        if (
+                            _is_internal(full, base_url)
+                            and full not in visited
+                            and full not in next_level
+                        ):
                             next_level.append(full)
                             count += 1
                             if count >= max_pages_per_level:
@@ -145,7 +157,9 @@ def crawl_site(
     use_concurrent: Optional[bool] = None,
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+
 ) -> List[Tuple[str, str]]:
+
     """Crawl ``base_url`` and return page contents up to ``max_depth``."""
 
     if use_concurrent is None:
@@ -159,8 +173,10 @@ def crawl_site(
                 max_concurrency,
                 max_pages_per_level,
             )
+
         except Exception as exc:  # pragma: no cover - concurrency failures
             logger.warning("Concurrent crawl failed for %s: %s", base_url, exc)
+
 
     # Fallback to synchronous crawling
     return _crawl_sync(base_url, max_depth, max_pages_per_level)

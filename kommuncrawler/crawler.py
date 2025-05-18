@@ -3,12 +3,9 @@
 import logging
 from html.parser import HTMLParser
 from urllib.parse import urljoin, urlparse
-
 from urllib.request import Request, urlopen
-from html.parser import HTMLParser
 
-from typing import Optional, Set
-import logging
+from typing import List, Tuple, Optional, Set
 
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -23,11 +20,6 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAX_DEPTH = 2
 MAX_PAGES_PER_LEVEL = 20
 DEFAULT_MAX_CONCURRENCY = 5
-
-logger = logging.getLogger(__name__)
-
-
-logger = logging.getLogger(__name__)
 
 class LinkParser(HTMLParser):
     """HTML parser that collects ``href`` links."""
@@ -70,15 +62,6 @@ def _crawl_sync(
     base_url: str,
     max_depth: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
-
-) -> list:
-    """Simple synchronous crawler using a queue."""
-
-    queue = [(base_url, 0)]
-    visited: Set[str] = set()
-    results = []
-
-
 ) -> List[Tuple[str, str]]:
     """Simple synchronous crawler using a queue."""
 
@@ -116,7 +99,7 @@ def _crawl_concurrent(
     max_workers: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
-) -> list:
+) -> List[Tuple[str, str]]:
 
     """Concurrent crawler using threads."""
     visited: Set[str] = set()
@@ -168,7 +151,7 @@ def crawl_site(
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
-) -> list:
+) -> List[Tuple[str, str]]:
 
     """Crawl ``base_url`` and return page contents up to ``max_depth``."""
 

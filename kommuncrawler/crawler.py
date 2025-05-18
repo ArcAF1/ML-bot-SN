@@ -5,7 +5,8 @@ from html.parser import HTMLParser
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
-from typing import List, Tuple, Optional, Set
+from typing import Optional, Set, List, Tuple
+
 
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -63,15 +64,14 @@ def _crawl_sync(
     max_depth: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
-
-) -> list:
+) -> List[Tuple[str, str]]:
 
     """Simple synchronous crawler using a queue."""
 
     queue = [(base_url, 0)]
     visited: Set[str] = set()
 
-    results = []
+    results: List[Tuple[str, str]] = []
 
     while queue:
         url, depth = queue.pop(0)

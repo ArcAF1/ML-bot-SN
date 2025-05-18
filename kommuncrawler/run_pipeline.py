@@ -90,6 +90,7 @@ if __name__ == '__main__':
     parser.add_argument('--pages-per-level', type=int, default=MAX_PAGES_PER_LEVEL, help='Pages to crawl per level')
 
     parser.add_argument('--concurrency', type=int, default=DEFAULT_MAX_CONCURRENCY, help='Number of concurrent workers')
+
     args = parser.parse_args()
 
     run(

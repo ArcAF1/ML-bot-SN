@@ -5,11 +5,6 @@ from html.parser import HTMLParser
 from typing import List, Optional, Set, Tuple
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
-
-from html.parser import HTMLParser
-from typing import List, Optional, Set, Tuple
-
-import logging
 from io import BytesIO
 try:
     from pdfminer.high_level import extract_text as pdf_extract_text
@@ -31,9 +26,6 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAX_DEPTH = 2
 MAX_PAGES_PER_LEVEL = 20
 DEFAULT_MAX_CONCURRENCY = 5
-
-
-logger = logging.getLogger(__name__)
 
 
 class LinkParser(HTMLParser):

@@ -8,6 +8,7 @@ from .crawler import (
 )
 from .pattern_extractor import extract_tax_info_from_text
 from .utils.text import normalize_text
+from typing import Any
 
 
 MAX_CHARS = 15000
@@ -19,7 +20,7 @@ def process_municipality(
     max_depth: int = DEFAULT_MAX_DEPTH,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
-) -> dict:
+) -> dict[str, Any]:
     """Crawl ``url`` and extract tax information for ``name``.
 
     Parameters

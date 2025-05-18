@@ -5,7 +5,7 @@ information. The extracted data is written to a CSV file for further analysis.
 
 ## Prerequisites
 
-- Python 3.8 or later
+- Python 3.9 or later
 - Dependencies installed via `pip install -r requirements.txt`
 
 ## Usage

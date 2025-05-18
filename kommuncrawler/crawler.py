@@ -7,9 +7,12 @@ from html.parser import HTMLParser
 from typing import Optional, Set
 
 
+
+
 from typing import Optional
 
  main
+
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
     CONCURRENCY_AVAILABLE = True
@@ -69,8 +72,11 @@ def _crawl_sync(
 
     visited: Set[str] = set()
 
+
+    visited: Set[str] = set()
+
     visited: set[str] = set()
- main
+main
     results = []
 
     while queue:
@@ -142,6 +148,9 @@ def _crawl_concurrent(
 def crawl_site(
     base_url: str,
     max_depth: int = DEFAULT_MAX_DEPTH,
+
+    use_concurrent: Optional[bool] = None,
+
 
     use_concurrent: Optional[bool] = None,
 

@@ -1,9 +1,15 @@
 """Simple depth-limited crawler used by the pipeline."""
 
 from urllib.parse import urljoin, urlparse
+
 from urllib.request import Request, urlopen
 from html.parser import HTMLParser
 from typing import List, Optional, Set, Tuple
+
+from urllib.request import urlopen, Request
+from html.parser import HTMLParser
+from typing import Optional, Set
+ main
 
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -60,7 +66,11 @@ def _crawl_sync(
     """Simple synchronous crawler using a queue."""
     queue = [(base_url, 0)]
     visited: Set[str] = set()
+
     results: List[Tuple[str, str]] = []
+
+    results = []
+
 
     while queue:
         url, depth = queue.pop(0)

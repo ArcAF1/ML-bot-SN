@@ -2,10 +2,9 @@
 
 import logging
 from html.parser import HTMLParser
+from typing import List, Optional, Set, Tuple
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
-
-from typing import Optional, Set, List, Tuple
 
 
 try:
@@ -21,6 +20,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAX_DEPTH = 2
 MAX_PAGES_PER_LEVEL = 20
 DEFAULT_MAX_CONCURRENCY = 5
+
 
 class LinkParser(HTMLParser):
     """HTML parser that collects ``href`` links."""
@@ -56,7 +56,6 @@ def _is_internal(link: str, base_url: str) -> bool:
     if link.startswith("http"):
         return urlparse(link).netloc == urlparse(base_url).netloc
     return True
-
 
 
 def _crawl_sync(
@@ -107,6 +106,7 @@ def _crawl_concurrent(
 ) -> List[Tuple[str, str]]:
 
     """Concurrent crawler using threads."""
+
     visited: Set[str] = set()
     results: List[Tuple[str, str]] = []
     current_level = [base_url]
@@ -171,10 +171,8 @@ def crawl_site(
                 max_concurrency,
                 max_pages_per_level,
             )
-
-        except Exception as exc:
+        except Exception as exc:  # pragma: no cover - fallback path
             logger.warning("Concurrent crawl failed for %s: %s", base_url, exc)
-
 
     # Fallback to synchronous crawling
     return _crawl_sync(base_url, max_depth, max_pages_per_level)

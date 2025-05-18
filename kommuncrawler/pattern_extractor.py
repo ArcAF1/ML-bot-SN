@@ -30,12 +30,12 @@ def extract_tax_info_from_text(text: str) -> dict:
         matches = re.findall(pattern, text)
         for match in matches:
             try:
-                if isinstance(match, str):
-                    raw_number = match
-                else:
-                    raw_number = next(
-                        filter(lambda x: re.match(r"\d", x), match)
-                    )
+
+                raw_number = (
+                    match
+                    if isinstance(match, str)
+                    else next(filter(lambda x: re.match(r"\d", x), match))
+                )
 
                 cleaned = (
                     raw_number.replace(" ", "")

@@ -6,13 +6,16 @@ from typing import List, Optional, Set, Tuple
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
-from typing import Optional, Set, List, Tuple
+from html.parser import HTMLParser
+from typing import List, Optional, Set, Tuple
+
 import logging
 from io import BytesIO
 try:
     from pdfminer.high_level import extract_text as pdf_extract_text
 except Exception:  # pragma: no cover
     pdf_extract_text = None  # type: ignore
+
 
 
 try:
@@ -28,6 +31,9 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAX_DEPTH = 2
 MAX_PAGES_PER_LEVEL = 20
 DEFAULT_MAX_CONCURRENCY = 5
+
+
+logger = logging.getLogger(__name__)
 
 
 class LinkParser(HTMLParser):
@@ -192,7 +198,10 @@ def crawl_site(
                 max_concurrency,
                 max_pages_per_level,
             )
-        except Exception as exc:  # pragma: no cover - fallback path
+
+
+        except Exception as exc:  # pragma: no cover - concurrency failures
+
             logger.warning("Concurrent crawl failed for %s: %s", base_url, exc)
 
     # Fallback to synchronous crawling

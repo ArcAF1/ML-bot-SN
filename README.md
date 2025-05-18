@@ -35,6 +35,7 @@ python -m kommuncrawler.gui
 ```
 
 Use the dialogs to pick the municipalities CSV and output directory.
+You can also set the crawl `Depth` and number of `Pages per level`.
 The GUI requires a graphical environment to run.
 
 ## Running tests

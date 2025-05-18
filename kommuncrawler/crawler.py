@@ -4,7 +4,18 @@ from urllib.parse import urljoin, urlparse
 from urllib.request import urlopen, Request
 from html.parser import HTMLParser
 from typing import Optional, Set
+import logging
 
+
+logger = logging.getLogger(__name__)
+
+
+
+
+from typing import Optional
+
+
+main
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
     CONCURRENCY_AVAILABLE = True
@@ -61,7 +72,13 @@ def _crawl_sync(
     """Simple synchronous crawler using a queue."""
 
     queue = [(base_url, 0)]
+
+
     visited: Set[str] = set()
+    visited: set[str] = set()
+
+    visited: Set[str] = set()
+ main
     results = []
 
     while queue:
@@ -150,8 +167,12 @@ def crawl_site(
                 max_concurrency,
                 max_pages_per_level,
             )
-        except Exception:
-            pass  # fall back to synchronous on any failure
+        except Exception as exc:
+            logger.warning(
+                "Concurrent crawl failed for %s: %s",
+                base_url,
+                exc,
+            )
 
     # Fallback to synchronous crawling
     return _crawl_sync(base_url, max_depth, max_pages_per_level)

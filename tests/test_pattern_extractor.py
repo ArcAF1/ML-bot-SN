@@ -20,6 +20,16 @@ class TestPatternExtractor(unittest.TestCase):
         result = extract_tax_info_from_text(text)
         self.assertAlmostEqual(result["timtaxa"], 1200.75)
 
+    def test_extract_tax_info_avgift_per_timme(self):
+        text = "Avgift per timme 900 kronor."
+        result = extract_tax_info_from_text(text)
+        self.assertEqual(result["timtaxa"], 900.0)
+
+    def test_extract_tax_info_timpris(self):
+        text = "Timpris är 1 100 kr."
+        result = extract_tax_info_from_text(text)
+        self.assertEqual(result["timtaxa"], 1100.0)
+
     def test_extract_tax_info_none(self):
         result = extract_tax_info_from_text("Detta är en testtext utan belopp.")
         self.assertIsNone(result["timtaxa"])

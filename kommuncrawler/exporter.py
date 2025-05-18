@@ -8,7 +8,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-
 def export_results(
     results: list[dict[str, Any]],
     output_path: str = 'results',

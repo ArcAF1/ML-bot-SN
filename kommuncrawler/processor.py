@@ -1,5 +1,7 @@
 """Processing utilities for a single municipality."""
 
+from typing import Any
+
 from .crawler import (
     crawl_site,
     DEFAULT_MAX_DEPTH,

@@ -25,7 +25,13 @@ def extract_tax_info_from_text(text: str) -> dict:
         matches = re.findall(pattern, text)
         for match in matches:
             try:
-                raw_number = next(filter(lambda x: re.match(r"\d", x), match))
+                if isinstance(match, str):
+                    raw_number = match
+                else:
+                    raw_number = next(
+                        filter(lambda x: re.match(r"\d", x), match)
+                    )
+
                 cleaned = (
                     raw_number.replace(" ", "")
                     .replace("\u202f", "")
@@ -34,11 +40,13 @@ def extract_tax_info_from_text(text: str) -> dict:
                 parts = cleaned.split(".")
                 if len(parts) > 2:
                     cleaned = "".join(parts[:-1]) + "." + parts[-1]
+
                 number = float(cleaned)
-                if 500 <= number <= 5000:
-                    hits.append(number)
             except Exception:
                 continue
+
+            if 500 <= number <= 5000:
+                hits.append(number)
 
     if hits:
         result["timtaxa"] = max(hits)

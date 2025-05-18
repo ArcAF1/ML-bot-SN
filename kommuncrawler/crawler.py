@@ -6,9 +6,9 @@ from urllib.parse import urljoin, urlparse
 
 from urllib.request import Request, urlopen
 from html.parser import HTMLParser
-
-from typing import Optional, Set
+from typing import List, Optional, Set, Tuple
 import logging
+
 
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -26,8 +26,6 @@ DEFAULT_MAX_CONCURRENCY = 5
 
 logger = logging.getLogger(__name__)
 
-
-logger = logging.getLogger(__name__)
 
 class LinkParser(HTMLParser):
     """HTML parser that collects ``href`` links."""
@@ -71,14 +69,6 @@ def _crawl_sync(
     max_depth: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
-) -> list:
-    """Simple synchronous crawler using a queue."""
-
-    queue = [(base_url, 0)]
-    visited: Set[str] = set()
-    results = []
-
-
 ) -> List[Tuple[str, str]]:
     """Simple synchronous crawler using a queue."""
 
@@ -116,7 +106,7 @@ def _crawl_concurrent(
     max_workers: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
-) -> list:
+) -> List[Tuple[str, str]]:
 
     """Concurrent crawler using threads."""
     visited: Set[str] = set()
@@ -168,7 +158,7 @@ def crawl_site(
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
 
-) -> list:
+) -> List[Tuple[str, str]]:
 
     """Crawl ``base_url`` and return page contents up to ``max_depth``."""
 
@@ -184,7 +174,7 @@ def crawl_site(
                 max_pages_per_level,
             )
 
-        except Exception as exc:
+        except Exception as exc:  # pragma: no cover - concurrency failures
             logger.warning("Concurrent crawl failed for %s: %s", base_url, exc)
 
 

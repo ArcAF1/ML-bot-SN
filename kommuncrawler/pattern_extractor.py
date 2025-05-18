@@ -25,7 +25,11 @@ def extract_tax_info_from_text(text: str) -> dict:
         matches = re.findall(pattern, text)
         for match in matches:
             try:
-                raw_number = next(filter(lambda x: re.match(r"\d", x), match))
+                raw_number = (
+                    match
+                    if isinstance(match, str)
+                    else next(filter(lambda x: re.match(r"\d", x), match))
+                )
                 cleaned = (
                     raw_number.replace(" ", "")
                     .replace("\u202f", "")

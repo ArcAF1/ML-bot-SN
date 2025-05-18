@@ -35,7 +35,6 @@ def process_municipality(
     max_concurrency:
 
         Number of worker threads for concurrent crawling.
-=
     """
     pages = crawl_site(
         url,

@@ -30,6 +30,8 @@ class TestCrawler(unittest.TestCase):
         self.assertNotIn('http://ext.com', urls)
         self.assertEqual(len(urls), 2)
 
+
+
     def test_crawl_site_concurrent_exception_warning(self):
         with patch('kommuncrawler.crawler._crawl_concurrent', side_effect=ValueError('boom')), \
              patch('kommuncrawler.crawler._crawl_sync', return_value=[('t', 'u')]) as mock_sync, \

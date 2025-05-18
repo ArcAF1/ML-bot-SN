@@ -9,8 +9,22 @@ from typing import List, Optional, Set, Tuple
 from urllib.request import urlopen, Request
 from html.parser import HTMLParser
 from typing import Optional, Set
+
  main
 
+import logging
+
+
+
+logger = logging.getLogger(__name__)
+
+
+
+
+from typing import Optional
+
+
+main
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
     CONCURRENCY_AVAILABLE = True
@@ -65,10 +79,17 @@ def _crawl_sync(
 ) -> List[Tuple[str, str]]:
     """Simple synchronous crawler using a queue."""
     queue = [(base_url, 0)]
+
+
     visited: Set[str] = set()
+    visited: set[str] = set()
+
+    visited: Set[str] = set()
+
 
     results: List[Tuple[str, str]] = []
 
+main
     results = []
 
 
@@ -159,7 +180,16 @@ def crawl_site(
                 max_concurrency,
                 max_pages_per_level,
             )
+
         except Exception:  # pragma: no cover - concurrency failures
             pass  # fall back to synchronous on any failure
+
+        except Exception as exc:
+            logger.warning(
+                "Concurrent crawl failed for %s: %s",
+                base_url,
+                exc,
+            )
+ main
 
     return _crawl_sync(base_url, max_depth, max_pages_per_level)

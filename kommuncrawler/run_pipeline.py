@@ -57,7 +57,9 @@ def run(
     pages_per_level:
         Number of pages to queue from each page.
     max_concurrency:
+
         Number of worker threads for concurrent crawling.
+
     """
 
     municipalities = load_municipalities(municipalities_csv)
@@ -86,7 +88,9 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', default='results', help='Directory for output CSV')
     parser.add_argument('--depth', type=int, default=DEFAULT_MAX_DEPTH, help='Maximum crawl depth')
     parser.add_argument('--pages-per-level', type=int, default=MAX_PAGES_PER_LEVEL, help='Pages to crawl per level')
+
     parser.add_argument('--concurrency', type=int, default=DEFAULT_MAX_CONCURRENCY, help='Number of concurrent workers')
+n
     args = parser.parse_args()
 
     run(

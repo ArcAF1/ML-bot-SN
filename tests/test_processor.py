@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+
 from kommuncrawler import processor
 
 
@@ -31,6 +32,9 @@ class TestProcessor(unittest.TestCase):
         def fake_crawl(url, max_depth=2, max_pages_per_level=20, max_concurrency=5):
             called['depth'] = max_depth
             called['pages'] = max_pages_per_level
+
+            called['conc'] = max_concurrency
+
             return [('text', url)]
 
         def fake_extract(text):
@@ -43,10 +47,16 @@ class TestProcessor(unittest.TestCase):
                 'http://example.com',
                 max_depth=5,
                 max_pages_per_level=7,
+
+                max_concurrency=3,
+
             )
 
         self.assertEqual(called['depth'], 5)
         self.assertEqual(called['pages'], 7)
+
+        self.assertEqual(called['conc'], 3)
+
 
 
 if __name__ == '__main__':

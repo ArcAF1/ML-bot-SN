@@ -30,11 +30,13 @@ class TestCrawler(unittest.TestCase):
         self.assertNotIn('http://ext.com', urls)
         self.assertEqual(len(urls), 2)
 
+
     def test_concurrent_failure_logs_warning(self):
         with patch('kommuncrawler.crawler._crawl_concurrent', side_effect=Exception('boom')):
             with self.assertLogs(crawler.logger, level='WARNING') as cm:
                 crawler.crawl_site('http://example.com', use_concurrent=True)
             self.assertTrue(any('Concurrent crawl failed' in msg for msg in cm.output))
+
 
 
 if __name__ == '__main__':

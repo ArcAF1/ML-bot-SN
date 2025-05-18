@@ -1,10 +1,15 @@
 """Simple depth-limited crawler used by the pipeline."""
 
-from urllib.parse import urljoin, urlparse
-from urllib.request import urlopen, Request
+import logging
 from html.parser import HTMLParser
+from urllib.parse import urljoin, urlparse
+
+from urllib.request import Request, urlopen
+from html.parser import HTMLParser
+
 from typing import Optional, Set
 import logging
+
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
     CONCURRENCY_AVAILABLE = True
@@ -13,9 +18,13 @@ except Exception:  # pragma: no cover
     as_completed = None  # type: ignore
     CONCURRENCY_AVAILABLE = False
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_MAX_DEPTH = 2
 MAX_PAGES_PER_LEVEL = 20
 DEFAULT_MAX_CONCURRENCY = 5
+
+logger = logging.getLogger(__name__)
 
 
 logger = logging.getLogger(__name__)
@@ -23,14 +32,14 @@ logger = logging.getLogger(__name__)
 class LinkParser(HTMLParser):
     """HTML parser that collects ``href`` links."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.links = []
+        self.links: List[str] = []
 
-    def handle_starttag(self, tag, attrs):
-        if tag == 'a':
+    def handle_starttag(self, tag: str, attrs: list) -> None:
+        if tag == "a":
             for attr, value in attrs:
-                if attr == 'href':
+                if attr == "href":
                     self.links.append(value)
 
 
@@ -38,18 +47,20 @@ def _fetch(url: str) -> str:
     """Retrieve the page content at ``url``.
 
     Returns an empty string on any failure."""
+
     try:
-        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urlopen(req, timeout=10) as resp:
-            charset = resp.headers.get_content_charset() or 'utf-8'
-            return resp.read().decode(charset, errors='ignore')
-    except Exception:
-        return ''
+            charset = resp.headers.get_content_charset() or "utf-8"
+            return resp.read().decode(charset, errors="ignore")
+    except Exception:  # pragma: no cover - network errors
+        return ""
 
 
 def _is_internal(link: str, base_url: str) -> bool:
     """Return ``True`` if ``link`` points to the same host as ``base_url``."""
-    if link.startswith('http'):
+
+    if link.startswith("http"):
         return urlparse(link).netloc == urlparse(base_url).netloc
     return True
 
@@ -59,6 +70,7 @@ def _crawl_sync(
     base_url: str,
     max_depth: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+
 ) -> list:
     """Simple synchronous crawler using a queue."""
 
@@ -66,6 +78,13 @@ def _crawl_sync(
     visited: Set[str] = set()
     results = []
 
+
+) -> List[Tuple[str, str]]:
+    """Simple synchronous crawler using a queue."""
+
+    queue = [(base_url, 0)]
+    visited: Set[str] = set()
+    results: List[Tuple[str, str]] = []
     while queue:
         url, depth = queue.pop(0)
         if url in visited or depth > max_depth:
@@ -96,16 +115,22 @@ def _crawl_concurrent(
     max_depth: int,
     max_workers: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+
 ) -> list:
+
     """Concurrent crawler using threads."""
-    visited = set()
-    results = []
+    visited: Set[str] = set()
+    results: List[Tuple[str, str]] = []
     current_level = [base_url]
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         for depth in range(max_depth + 1):
-            futures = {executor.submit(_fetch, url): url for url in current_level if url not in visited}
-            next_level = []
+            futures = {
+                executor.submit(_fetch, url): url
+                for url in current_level
+                if url not in visited
+            }
+            next_level: List[str] = []
             visited.update(current_level)
 
             for future in as_completed(futures):
@@ -121,7 +146,11 @@ def _crawl_concurrent(
                     count = 0
                     for href in parser.links:
                         full = urljoin(url, href)
-                        if _is_internal(full, base_url) and full not in visited and full not in next_level:
+                        if (
+                            _is_internal(full, base_url)
+                            and full not in visited
+                            and full not in next_level
+                        ):
                             next_level.append(full)
                             count += 1
                             if count >= max_pages_per_level:
@@ -138,7 +167,9 @@ def crawl_site(
     use_concurrent: Optional[bool] = None,
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+
 ) -> list:
+
     """Crawl ``base_url`` and return page contents up to ``max_depth``."""
 
     if use_concurrent is None:
@@ -152,8 +183,10 @@ def crawl_site(
                 max_concurrency,
                 max_pages_per_level,
             )
+
         except Exception as exc:
             logger.warning("Concurrent crawl failed for %s: %s", base_url, exc)
+
 
     # Fallback to synchronous crawling
     return _crawl_sync(base_url, max_depth, max_pages_per_level)

@@ -1,6 +1,11 @@
 """Processing utilities for a single municipality."""
 
-from .crawler import crawl_site, DEFAULT_MAX_DEPTH, MAX_PAGES_PER_LEVEL
+from .crawler import (
+    crawl_site,
+    DEFAULT_MAX_DEPTH,
+    MAX_PAGES_PER_LEVEL,
+    DEFAULT_MAX_CONCURRENCY,
+)
 from .pattern_extractor import extract_tax_info_from_text
 from .utils.text import normalize_text
 
@@ -13,6 +18,7 @@ def process_municipality(
     url: str,
     max_depth: int = DEFAULT_MAX_DEPTH,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
+    max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
 ) -> dict:
     """Crawl ``url`` and extract tax information for ``name``.
 
@@ -26,8 +32,15 @@ def process_municipality(
         How many link levels deep to follow.
     max_pages_per_level:
         Limit for how many pages to queue from a single page.
+    max_concurrency:
+        Maximum number of concurrent workers when crawling.
     """
-    pages = crawl_site(url, max_depth=max_depth, max_pages_per_level=max_pages_per_level)
+    pages = crawl_site(
+        url,
+        max_depth=max_depth,
+        max_pages_per_level=max_pages_per_level,
+        max_concurrency=max_concurrency,
+    )
     best_score = -1
     best_result = None
     best_url = url

@@ -22,6 +22,7 @@ python -m kommuncrawler.run_pipeline -m kommuner.csv -o results
 - `-o`, `--output` – directory where the result CSV will be stored
 - `--depth` – maximum crawl depth (default: 2)
 - `--pages-per-level` – pages to crawl per level (default: 20)
+- `--concurrency` – maximum concurrent workers (default: 5)
 
 ### GUI
 

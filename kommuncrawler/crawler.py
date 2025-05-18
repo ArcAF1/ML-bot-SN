@@ -1,30 +1,11 @@
 """Simple depth-limited crawler used by the pipeline."""
 
-from urllib.parse import urljoin, urlparse
-
-from urllib.request import Request, urlopen
+import logging
 from html.parser import HTMLParser
+from urllib.parse import urljoin, urlparse
+from urllib.request import Request, urlopen
 from typing import List, Optional, Set, Tuple
 
-from urllib.request import urlopen, Request
-from html.parser import HTMLParser
-from typing import Optional, Set
-
- main
-
-import logging
-
-
-
-logger = logging.getLogger(__name__)
-
-
-
-
-from typing import Optional
-
-
-main
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
     CONCURRENCY_AVAILABLE = True
@@ -36,6 +17,8 @@ except Exception:  # pragma: no cover
 DEFAULT_MAX_DEPTH = 2
 MAX_PAGES_PER_LEVEL = 20
 DEFAULT_MAX_CONCURRENCY = 5
+
+logger = logging.getLogger(__name__)
 
 
 class LinkParser(HTMLParser):
@@ -79,19 +62,8 @@ def _crawl_sync(
 ) -> List[Tuple[str, str]]:
     """Simple synchronous crawler using a queue."""
     queue = [(base_url, 0)]
-
-
     visited: Set[str] = set()
-    visited: set[str] = set()
-
-    visited: Set[str] = set()
-
-
     results: List[Tuple[str, str]] = []
-
-main
-    results = []
-
 
     while queue:
         url, depth = queue.pop(0)
@@ -152,7 +124,11 @@ def _crawl_concurrent(
                     count = 0
                     for href in parser.links:
                         full = urljoin(url, href)
-                        if _is_internal(full, base_url) and full not in visited and full not in next_level:
+                        if (
+                            _is_internal(full, base_url)
+                            and full not in visited
+                            and full not in next_level
+                        ):
                             next_level.append(full)
                             count += 1
                             if count >= max_pages_per_level:
@@ -180,16 +156,11 @@ def crawl_site(
                 max_concurrency,
                 max_pages_per_level,
             )
-
-        except Exception:  # pragma: no cover - concurrency failures
-            pass  # fall back to synchronous on any failure
-
-        except Exception as exc:
+        except Exception as exc:  # pragma: no cover - concurrency failures
             logger.warning(
                 "Concurrent crawl failed for %s: %s",
                 base_url,
                 exc,
             )
- main
 
     return _crawl_sync(base_url, max_depth, max_pages_per_level)

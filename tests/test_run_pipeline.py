@@ -16,7 +16,11 @@ class TestRunPipeline(unittest.TestCase):
                 writer.writerow({"kommun": "A", "url": "http://a"})
                 writer.writerow({"kommun": "B", "url": "http://b"})
 
+
             def fake_crawl(url, max_depth=2, max_pages_per_level=20, max_concurrency=5):
+
+            def fake_crawl(url, max_depth=2, max_pages_per_level=20):
+
                 return [("dummy", f"{url}/page")]
 
             def fake_extract(text):

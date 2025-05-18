@@ -3,7 +3,7 @@
 KommunCrawler crawls Swedish municipal websites and extracts hourly tax
 information. The extracted data is written to a CSV file for further analysis.
 
--## Prerequisites
+## Prerequisites
 
 - Python 3.9 or later
 - Dependencies installed via `pip install -r requirements.txt`

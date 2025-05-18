@@ -66,7 +66,7 @@ class TestRunPipeline(unittest.TestCase):
                     max_concurrency=7,
                 )
 
-    def test_run_passes_concurrency(self):
+    def test_run_processes_all_rows(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             csv_path = os.path.join(tmpdir, "municipalities.csv")
             with open(csv_path, "w", newline="", encoding="utf-8") as f:

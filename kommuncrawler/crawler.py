@@ -6,6 +6,9 @@ from typing import List, Optional, Set, Tuple
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
+from typing import Optional, Set, List, Tuple
+import logging
+
 
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed

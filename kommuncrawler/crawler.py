@@ -1,17 +1,9 @@
 """Simple depth-limited crawler used by the pipeline."""
 
 from urllib.parse import urljoin, urlparse
-from urllib.request import urlopen, Request
-
+from urllib.request import Request, urlopen
 from html.parser import HTMLParser
-from typing import Optional, Set
-
-
-
-
-from typing import Optional
-
- main
+from typing import List, Optional, Set, Tuple
 
 try:
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -29,14 +21,14 @@ DEFAULT_MAX_CONCURRENCY = 5
 class LinkParser(HTMLParser):
     """HTML parser that collects ``href`` links."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.links = []
+        self.links: List[str] = []
 
-    def handle_starttag(self, tag, attrs):
-        if tag == 'a':
+    def handle_starttag(self, tag: str, attrs: list) -> None:
+        if tag == "a":
             for attr, value in attrs:
-                if attr == 'href':
+                if attr == "href":
                     self.links.append(value)
 
 
@@ -45,39 +37,30 @@ def _fetch(url: str) -> str:
 
     Returns an empty string on any failure."""
     try:
-        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urlopen(req, timeout=10) as resp:
-            charset = resp.headers.get_content_charset() or 'utf-8'
-            return resp.read().decode(charset, errors='ignore')
-    except Exception:
-        return ''
+            charset = resp.headers.get_content_charset() or "utf-8"
+            return resp.read().decode(charset, errors="ignore")
+    except Exception:  # pragma: no cover - network errors
+        return ""
 
 
 def _is_internal(link: str, base_url: str) -> bool:
     """Return ``True`` if ``link`` points to the same host as ``base_url``."""
-    if link.startswith('http'):
+    if link.startswith("http"):
         return urlparse(link).netloc == urlparse(base_url).netloc
     return True
-
 
 
 def _crawl_sync(
     base_url: str,
     max_depth: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
-) -> list:
+) -> List[Tuple[str, str]]:
     """Simple synchronous crawler using a queue."""
-
     queue = [(base_url, 0)]
-
     visited: Set[str] = set()
-
-
-    visited: Set[str] = set()
-
-    visited: set[str] = set()
-main
-    results = []
+    results: List[Tuple[str, str]] = []
 
     while queue:
         url, depth = queue.pop(0)
@@ -109,16 +92,20 @@ def _crawl_concurrent(
     max_depth: int,
     max_workers: int,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
-) -> list:
+) -> List[Tuple[str, str]]:
     """Concurrent crawler using threads."""
-    visited = set()
-    results = []
+    visited: Set[str] = set()
+    results: List[Tuple[str, str]] = []
     current_level = [base_url]
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         for depth in range(max_depth + 1):
-            futures = {executor.submit(_fetch, url): url for url in current_level if url not in visited}
-            next_level = []
+            futures = {
+                executor.submit(_fetch, url): url
+                for url in current_level
+                if url not in visited
+            }
+            next_level: List[str] = []
             visited.update(current_level)
 
             for future in as_completed(futures):
@@ -139,31 +126,18 @@ def _crawl_concurrent(
                             count += 1
                             if count >= max_pages_per_level:
                                 break
-
             current_level = next_level
-
     return results
 
 
 def crawl_site(
     base_url: str,
     max_depth: int = DEFAULT_MAX_DEPTH,
-
     use_concurrent: Optional[bool] = None,
-
-
-    use_concurrent: Optional[bool] = None,
-
-
-    use_concurrent: Optional[bool] = None,
-
-
-main
     max_concurrency: int = DEFAULT_MAX_CONCURRENCY,
     max_pages_per_level: int = MAX_PAGES_PER_LEVEL,
-) -> list:
+) -> List[Tuple[str, str]]:
     """Crawl ``base_url`` and return page contents up to ``max_depth``."""
-
     if use_concurrent is None:
         use_concurrent = CONCURRENCY_AVAILABLE
 
@@ -175,8 +149,7 @@ main
                 max_concurrency,
                 max_pages_per_level,
             )
-        except Exception:
+        except Exception:  # pragma: no cover - concurrency failures
             pass  # fall back to synchronous on any failure
 
-    # Fallback to synchronous crawling
     return _crawl_sync(base_url, max_depth, max_pages_per_level)

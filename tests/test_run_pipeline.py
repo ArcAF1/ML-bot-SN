@@ -16,7 +16,7 @@ class TestRunPipeline(unittest.TestCase):
                 writer.writerow({"kommun": "A", "url": "http://a"})
                 writer.writerow({"kommun": "B", "url": "http://b"})
 
-            def fake_crawl(url):
+            def fake_crawl(url, max_depth=2, max_pages_per_level=20, max_concurrency=5):
                 return [("dummy", f"{url}/page")]
 
             def fake_extract(text):
@@ -29,7 +29,7 @@ class TestRunPipeline(unittest.TestCase):
             out_dir = os.path.join(tmpdir, "out")
             with patch("kommuncrawler.processor.crawl_site", side_effect=fake_crawl), \
                  patch("kommuncrawler.processor.extract_tax_info_from_text", side_effect=fake_extract):
-                run_pipeline.run(csv_path, output_dir=out_dir)
+                run_pipeline.run(csv_path, output_dir=out_dir, max_concurrency=3)
 
             output_file = os.path.join(out_dir, "output.csv")
             self.assertTrue(os.path.exists(output_file))

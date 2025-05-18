@@ -3,6 +3,7 @@ import os
 import csv
 import tempfile
 from unittest.mock import patch
+
 from kommuncrawler import run_pipeline
 
 
